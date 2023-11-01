@@ -1,0 +1,17 @@
+{
+    "functionClassNameMap": {
+        "runScript\\current": "Espo\\Modules\\RunScriptFunction\\FormulaFunctions\\Current",
+        "runScript\\target": "Espo\\Modules\\RunScriptFunction\\FormulaFunctions\\Target"
+    },
+    "functionList": [
+        "__APPEND__",
+        {
+            "name": "runScript\\current",
+            "insertText": "runScript\\current(SCRIPT)"
+        },
+        {
+            "name": "runScript\\target",
+            "insertText": "runScript\\target(ENTITY_TYPE, ID, SCRIPT)"
+        }
+    ]
+}
