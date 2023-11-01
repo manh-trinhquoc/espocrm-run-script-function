@@ -1,0 +1,43 @@
+{
+  "id" : 1,
+  "name" : "Facebook realtime lead ads",
+  "description" : "Description",
+  "lastModifiedDate" : "2023-09-07T09:48:29Z",
+  "properties" : {
+    "structurizr.dsl" : "d29ya3NwYWNlICJGYWNlYm9vayByZWFsdGltZSBsZWFkIGFkcyIgewogICAgIWFkcnMgZGVjaXNpb25zCiAgICAhZG9jcyBkb2N1bWVudHMKICAgIG1vZGVsIHsKICAgICAgICAKICAgIH0KCiAgICB2aWV3cyB7CiAgICAgICAgCgogICAgICAgIHRoZW1lIGRlZmF1bHQKCiAgICAgICAgLy8gdGhlbWVzIGh0dHBzOi8vc3RhdGljLnN0cnVjdHVyaXpyLmNvbS90aGVtZXMvbWljcm9zb2Z0LWF6dXJlLTIwMjEuMDEuMjYvdGhlbWUuanNvbgogICAgfQoKfQo="
+  },
+  "configuration" : { },
+  "model" : { },
+  "documentation" : {
+    "sections" : [ {
+      "content" : "## Overview\n\n- Kết nối với facebook lấy thông tin lead theo thời gian thực \n\n## Các bước đăng ký để lấy được thông tin lead của fanpage\n\n1. Tạo [Facebook App](httsp://developers.facebook.com/apps).\n- Trên app dashboard, add thêm product là Webhooks. Cấu hình Webhook là dạng Page, verfify url, subscription là leadgen\n- Để verify url, facebook sẽ gửi 1 GET request đến url kèm thông tin hub.verify_token và hub.challenge. Server sẽ phải response chính xác giá trị hub.challenge\n- Url của extension có dạng: https://{crm-domain}/api/v1/FacebookRealtimeLeadAdsWebhook\n\n2. Có quyền truy cập trang Facebook Page đang cần lấy lead. Lấy thông tin pageId \n\n3. Có quyền truy cập [Business Manager](https://business.facebook.com/select/).\n\n4. Trên trang Business Manager. \n- Thêm App: Business Manager -> Business Settings -> Apps -> Add\n- Thêm Page: Business Manager -> Business Settings -> Pages -> Add\n- Thêm user system `System User`. (in Business Manager left column menu (need to have at least 1 app in Business Manager to see the System User menu)). Lưu ý trên url có Id của user này nhưng không phải id mình cần lấy\n    - Cấu hình cho user các quyền `manage_pages_**` and `leads_retrieval`.\n- Assign system user to your Page as `Page Admin`. (in Business Manager -> Business Settings -> System Users -> Assign Assets)\n- Assign the system user to your facebook app with role equal or higher than developer (in Business Manager -> Business Settings -> System Users -> Assign Assets).\n- Trên trang system user, tạo User Access Token: Business Manager -> Business Settings -> System Users -> Generate New Token. Sau khi tạo token, ta kick vào token sẽ nhảy ra trang debug. Trên trang debug ta lấy thông tin App-Scope User Id để điền vào các bước sau\n- Trang debug có dạng: https://developers.facebook.com/tools/debug/accesstoken/?access_token={User Access Token}\n\n5. Lấy page access token = cách dùng postman gửi POST request đến https://graph.facebook.com/v17.0/{user-id}/accounts?access_token={User Access Token} với user là System User ở trên. Nếu thành công thông tin phản hồi về sẽ có list các Page mà User có quyền truy cập kèm access_token tương ứng.\n\n6. Subscribe your App to your Page = cách dùng postman gửi POST request đến  https://graph.facebook.com/v17.0/{page-id}/subscribed_apps?subscribed_fields=leadgen&access_token={Page Access Token}. Nếu thành công facebook sẽ phản hồi success.\n- Sau bước này, khi phát sinh lead mới trên trang, facebook sẽ gửi Post request đến url đã được đăng ký trong App. Post request chứa thông tin ` leadgen_id `\n- Khi vào công cụ test ads của facebook ta có thể thấy webhook đã được đăng ký: https://developers.facebook.com/tools/lead-ads-testing/. Ta có thể tạo lead ảo trên trang này để test. Lưu ý để dùng tool này App cần đặt ở chế độ live\n\n7. Lấy chi tiết thông tin lead = cách dùng postman gửi GET request đến https://graph.facebook.com/v17.0/{lead-id}?access_token={Page Access Token}\n\n10. Note: \n- Các bước thao tác qua postman có thể thực hiện qua [Graph API Explorer](https://developers.facebook.com/tools/explorer/). Tuy nhiên thử nghiệm thực tế thấy có lúc lỗi\n## Tham khảo\n\n- github: https://github.com/supasate/facebook-realtime-lead-ads-demo\n- Tham khảo https://developers.facebook.com/docs/marketing-api/guides/lead-ads/quickstart/webhooks-integration\n- code demo sử dụng facebook api sử dụng Facebook Php Sdk thay vì code thuần: https://developers.facebook.com/ads/blog/post/2014/12/11/real-time-updates-for-page-conversions/\n- Tool test cho dev của facebook: https://developers.facebook.com/docs/marketing-api/guides/lead-ads/testing-troubleshooting/\n- Hướng dẫn  verify webhook endpoint: https://developers.facebook.com/docs/graph-api/webhooks/getting-started\n\n",
+      "format" : "Markdown",
+      "filename" : "001 overview.md",
+      "order" : 1,
+      "title" : ""
+    } ],
+    "decisions" : [ {
+      "content" : "# 0. File template\n\nDate: 2023-08-01\n\n## Status\n\nAccepted\n\n## Context\n\n- Bản template để note chung về frame work và để người dùng clone file\n\n## Decision\n- Khi trỏ đến node khác ta dùng cú pháp  title [text](link). Title sẽ bị đè bởi status chuẩn như Accepted, Proposed\n- [Xem các ví dụ khác](https://github.com/npryce/adr-tools/tree/master/tests)\n- We will use Architecture Decision Records, as described by Michael Nygard in [this article](http://thinkrelevance.com/blog/2011/11/15/documenting-architecture-decisions)\n\n## Consequences\n",
+      "format" : "Markdown",
+      "id" : "0",
+      "title" : "File template",
+      "date" : "2023-08-01T00:00:00Z",
+      "status" : "Accepted"
+    }, {
+      "content" : "# . version 0. 0. 1\n\nDate: 2023-08-30\n\n## Status\n\nAccepted\n\n## Release Note\n- User can get realtime lead from facebook\n",
+      "format" : "Markdown",
+      "id" : "1",
+      "title" : "version 0. 0. 1",
+      "date" : "2023-08-30T00:00:00Z",
+      "status" : "Accepted"
+    } ]
+  },
+  "views" : {
+    "configuration" : {
+      "branding" : { },
+      "styles" : { },
+      "themes" : [ "https://static.structurizr.com/themes/default/theme.json" ],
+      "terminology" : { }
+    }
+  }
+}

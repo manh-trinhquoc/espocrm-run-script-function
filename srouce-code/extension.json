@@ -1,0 +1,13 @@
+{
+    "module": "RunScriptFunction",
+    "name": "Run Script Function",
+    "description": "Custom formular function which run formula script.",
+    "author": "manhtq",
+    "bundled": true,
+    "acceptableVersions": [
+        ">=7.3.0"
+    ],
+    "php": [
+        ">=7.2"
+    ]
+}

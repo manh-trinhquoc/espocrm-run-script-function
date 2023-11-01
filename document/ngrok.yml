@@ -1,0 +1,8 @@
+version: 2
+authtoken: 2UyRqzwje2WvwcvNxSsRhKjANbi_7yhYToVvuaLhFmKAKy26K
+tunnels:
+  demo:
+    proto: http
+    addr: host.docker.internal:80
+    schemes:
+      - https
