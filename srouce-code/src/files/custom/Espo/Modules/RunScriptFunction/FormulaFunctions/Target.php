@@ -97,7 +97,7 @@ class Target implements Func
 
             $saveOptions = [];
             if ($save == 'SILENT') {
-                $saveOptions[SaveOption::SILENT] = true;
+                $saveOptions[SaveOption::SILENT] = true; //workflows will be ignored, modified fields won't be change;
             }
             if ($save == 'SKIP_ALL') {
                 $saveOptions[SaveOption::SKIP_ALL] = true; //khi SKIP_ALL sẽ không lưu được các trường link multiple
@@ -107,7 +107,7 @@ class Target implements Func
         }
 
         self::$nestedCallLevel--;
-        return $entity;
+        return [$entity];
     }
 
 
