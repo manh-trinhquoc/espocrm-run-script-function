@@ -7,11 +7,11 @@
         "__APPEND__",
         {
             "name": "runScript\\current",
-            "insertText": "runScript\\current(SCRIPT)"
+            "insertText": "runScript\\current(SCRIPT, OBJECT = null)"
         },
         {
             "name": "runScript\\target",
-            "insertText": "runScript\\target(ENTITY_TYPE, ID, SCRIPT)"
+            "insertText": "runScript\\target(ENTITY_TYPE, ID, SCRIPT, OPTIONS = null)"
         }
     ]
 }

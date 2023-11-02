@@ -23,6 +23,7 @@ class Target implements Func
     public function __construct(private EntityManager $entityManager, private Log $log, private FormulaManager $formulaManager)
     {
     }
+
     /**
      * Tính toán giá trị ưu đãi đóng theo kỳ và đóng theo năm.
      * @param EvaluatedArgumentList $arguments
@@ -32,56 +33,81 @@ class Target implements Func
     public function process(EvaluatedArgumentList $arguments): array
     {
 
-        $this->log->info("formula salesOrder\\calculateUuDaiItem: nestedCallLevel: " . self::$nestedCallLevel);
+        $this->log->debug("formula runScript\\target: nestedCallLevel: " . self::$nestedCallLevel);
         self::$nestedCallLevel++;
 
         if (self::$nestedCallLevel > 1) {
-            $this->log->error("formula salesOrder\\calculateUuDaiItem không được gọi lặp lại. Check lại các script.");
+            $this->log->error("formula runScript\\target không được gọi lặp lại. Check lại các script.");
             self::$nestedCallLevel--;
             return [];
         }
 
-        if ($arguments->count() != 1) {
-            $this->log->error("formula salesOrder\\calculateUuDaiItem cần 1 tham số: id của SaleOrderUuDaiItem cần tính");
+        if ($arguments->count() < 3) {
+            $this->log->error("formula runScript\\target cần tối thiểu 3 tham số: ENTITY_TYPE, ID, SCRIPT");
             self::$nestedCallLevel--;
             return [];
         }
-        $idUuDaiItem = $arguments->offsetGet(0);
+        $entityType = $arguments->offsetGet(0);
+        $entityId = $arguments->offsetGet(1);
+        $customScript = $arguments->offsetGet(2);
+        $options = $arguments->offsetGet(3);
 
-        if($idUuDaiItem == null || $idUuDaiItem == "") {
-            $this->log->error("formula salesOrder\\calculateUuDaiItem: id SaleOrderUuDaiItem không hợp lệ:" . $idUuDaiItem);
-            self::$nestedCallLevel--;
-            return [];
-        }
-
-        $entitySaleOrderUuDaiItem = $this->entityManager->getEntityById("SaleOrderUuDaiItem", $idUuDaiItem);
-        if ($entitySaleOrderUuDaiItem == null) {
-            $this->log->error("formula salesOrder\\calculateUuDaiItem: không tìm thấy SaleOrderUuDaiItem với Id: $idUuDaiItem");
+        if($entityType == null || $entityType == "") {
+            $this->log->error("formula runScript\\target: entityType không hợp lệ:" . $entityType);
             self::$nestedCallLevel--;
             return [];
         }
 
-        $customScript = $entitySaleOrderUuDaiItem->get('formula');
+        if($entityId == null || $entityId == "") {
+            $this->log->error("formula runScript\\target: id không hợp lệ:" . $entityId);
+            self::$nestedCallLevel--;
+            return [];
+        }
+
+        $entity = $this->entityManager->getEntityById($entityType, $entityId);
+        if ($entity == null) {
+            $this->log->error("formula runScript\\target: không tìm thấy entity: $entityType với Id: $entityId");
+            self::$nestedCallLevel--;
+            return [];
+        }
 
         if (!$customScript || empty($customScript)) {
             $customScript = "";
         }
 
-        $this->log->debug("formula salesOrder\\calculateUuDaiItem: run formula of SaleOrderUuDaiItemId: $idUuDaiItem");
-        $this->log->debug("formula salesOrder\\calculateUuDaiItem: formula: $customScript");
-        $this->runScript($customScript, $entitySaleOrderUuDaiItem, (object) [
-            // 'i' => 500,
-        ]);
 
-        //khi SKIP_ALL sẽ không lưu được các trường link multiple
-        $this->entityManager->saveEntity($entitySaleOrderUuDaiItem, [SaveOption::SILENT => true]);
+        if (!is_null($options) && !is_object($options)) {
+            $this->log->error("formula runScript\\target: biến đầu vào không hợp lệ. Cần truyền vào object.");
+            self::$nestedCallLevel--;
+            return [];
+        }
 
-        $result = [
-            $entitySaleOrderUuDaiItem->get("soTien"),
-            $entitySaleOrderUuDaiItem->get("soTienCaNam"),
-        ];
+        $varObj = (object) [];
+
+        if (property_exists($options, 'varObj') && is_object($options->varObj)) {
+            $varObj = $options->varObj;
+        }
+
+        $this->log->debug("formula runScript\\target: run formula with target $entityType: $entityId");
+        $this->log->debug("formula runScript\\target: formula: $customScript");
+        $this->runScript($customScript, $entity, $varObj);
+
+        if (property_exists($options, 'save')) {
+            $save = $options->save;
+
+            $saveOptions = [];
+            if ($save == 'SILENT') {
+                $saveOptions[SaveOption::SILENT] = true;
+            }
+            if ($save == 'SKIP_ALL') {
+                $saveOptions[SaveOption::SKIP_ALL] = true; //khi SKIP_ALL sẽ không lưu được các trường link multiple
+            }
+
+            $this->entityManager->saveEntity($entity, $saveOptions);
+        }
+
         self::$nestedCallLevel--;
-        return $result;
+        return $entity;
     }
 
 
@@ -97,7 +123,7 @@ class Target implements Func
         } catch (Error $e) {
             $entityType = $entity->getEntityType();
             $id = $entity->getId();
-            $this->log->error("formula salesOrder\\calculateUuDaiItem: formula script of $entityType($id) failed: " . $e->getMessage());
+            $this->log->error("formula runScript\\target: formula script of $entityType($id) failed: " . $e->getMessage());
         }
     }
 }
