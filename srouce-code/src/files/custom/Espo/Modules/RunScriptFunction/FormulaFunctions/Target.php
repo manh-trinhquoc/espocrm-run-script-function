@@ -25,12 +25,12 @@ class Target implements Func
     }
 
     /**
-     * Tính toán giá trị ưu đãi đóng theo kỳ và đóng theo năm.
+     * Chạy formula script đưa vào
      * @param EvaluatedArgumentList $arguments
      * @throws Error
-     * @return array là số tiền đóng theo kỳ và theo năm tính được, có lỗi lúc xử lý thì trả về []
+     * @return Entity. nếu lỗi trả về null
      */
-    public function process(EvaluatedArgumentList $arguments): array
+    public function process(EvaluatedArgumentList $arguments): ?Entity
     {
 
         $this->log->debug("formula runScript\\target: nestedCallLevel: " . self::$nestedCallLevel);
@@ -39,13 +39,13 @@ class Target implements Func
         if (self::$nestedCallLevel > 1) {
             $this->log->error("formula runScript\\target không được gọi lặp lại. Check lại các script.");
             self::$nestedCallLevel--;
-            return [];
+            return null;
         }
 
         if ($arguments->count() < 3) {
             $this->log->error("formula runScript\\target cần tối thiểu 3 tham số: ENTITY_TYPE, ID, SCRIPT");
             self::$nestedCallLevel--;
-            return [];
+            return null;
         }
         $entityType = $arguments->offsetGet(0);
         $entityId = $arguments->offsetGet(1);
@@ -55,20 +55,20 @@ class Target implements Func
         if($entityType == null || $entityType == "") {
             $this->log->error("formula runScript\\target: entityType không hợp lệ:" . $entityType);
             self::$nestedCallLevel--;
-            return [];
+            return null;
         }
 
         if($entityId == null || $entityId == "") {
             $this->log->error("formula runScript\\target: id không hợp lệ:" . $entityId);
             self::$nestedCallLevel--;
-            return [];
+            return null;
         }
 
         $entity = $this->entityManager->getEntityById($entityType, $entityId);
         if ($entity == null) {
             $this->log->error("formula runScript\\target: không tìm thấy entity: $entityType với Id: $entityId");
             self::$nestedCallLevel--;
-            return [];
+            return null;
         }
 
         if (!$customScript || empty($customScript)) {
@@ -79,7 +79,7 @@ class Target implements Func
         if (!is_null($options) && !is_object($options)) {
             $this->log->error("formula runScript\\target: biến đầu vào không hợp lệ. Cần truyền vào object.");
             self::$nestedCallLevel--;
-            return [];
+            return null;
         }
 
         $varObj = (object) [];
@@ -107,7 +107,7 @@ class Target implements Func
         }
 
         self::$nestedCallLevel--;
-        return [$entity];
+        return $entity;
     }
 
 
