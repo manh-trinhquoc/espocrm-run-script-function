@@ -49,8 +49,8 @@ class Current extends BaseFunction
      */
     public function process(ArgumentList $args): ?Entity
     {
-        var_dump($this->variables);
-        die;
+        // var_dump($this->variables); // các biến trong script function này được gọi
+        // die;
         $this->log->debug("formula runScript\\current: nestedCallLevel: " . self::$nestedCallLevel);
         self::$nestedCallLevel++;
 
@@ -93,6 +93,8 @@ class Current extends BaseFunction
             $varObj = $options->varObj;
         }
 
+        $entityType = $entity->getEntityType();
+        $entityId = $entity->getId();
         $this->log->debug("formula runScript\\current: run formula with target $entityType: $entityId");
         $this->log->debug("formula runScript\\current: formula: $customScript");
         $this->runScript($customScript, $entity, $varObj);
