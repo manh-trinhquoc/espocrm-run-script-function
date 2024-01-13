@@ -120,7 +120,7 @@ class Target implements Func
     {
         try {
             $this->formulaManager->run($script, $entity, $variables);
-        } catch (Error $e) {
+        } catch (\Throwable $e) {
             $entityType = $entity->getEntityType();
             $id = $entity->getId();
             $this->log->error("formula runScript\\target: formula script of $entityType($id) failed: " . $e->getMessage());
